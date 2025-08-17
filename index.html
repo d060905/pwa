@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#d32f2f" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js" defer></script>
+  <script src="scripts.js" defer></script>
+  <title>PWA + Firebase</title>
+</head>
+<body>
+  <button id="subscribeBtn">Bildirimlere İzin Ver</button>
+<br> <br> <br>
+  <section id="lovePage">
+    <!-- Günaydın Popup -->
+    <div id="gunaydinPopup" role="alert" aria-live="polite"></div>
+    
+    <!-- Arama Butonu -->
+    
+
+    <!-- Header / Hero -->
+    <div class="header" data-aos="fade-down">
+      <h1 data-aos="zoom-in">Sitene hoş geldin bitanecik sevgilimm 💖</h1>
+      <div class="glass-card" data-aos="zoom-in" data-aos-delay="200">
+        <a href="popup.html" class="glass-btn">Özel günlerimiz</a>
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="glass-card countdown-card" data-aos="fade-up">
+  <h2 class="countdown-title">Prensesimin doğum gününe kalan zaman</h2>
+  <div class="countdown">
+    <div class="time-box" id="daysBox" data-aos="flip-down">
+      <div class="number" id="days">--</div>
+      <div class="label">Gün</div>
+    </div>
+    <div class="time-box" id="hoursBox" data-aos="flip-down" data-aos-delay="100">
+      <div class="number" id="hours">--</div>
+      <div class="label">Saat</div>
+    </div>
+    <div class="time-box" id="minutesBox" data-aos="flip-down" data-aos-delay="200">
+      <div class="number" id="minutes">--</div>
+      <div class="label">Dakika</div>
+    </div>
+    <div class="time-box" id="secondsBox" data-aos="flip-down" data-aos-delay="300">
+      <div class="number" id="seconds">--</div>
+      <div class="label">Saniye</div>
+    </div>
+  </div>
+</div>
+
+
+
+
+    <!-- Şifreli Mesaj -->
+    <div id="message-section" data-aos="fade-up" data-aos-delay="400">
+      <button onclick="showPasswordPrompt()" class="glass-btn">Mesajı Gör</button>
+      <div id="passwordPrompt" style="display:none; margin-top: 10px;">
+        <input type="password" id="passwordInput" placeholder="Şifreyi gir..." />
+        <button onclick="checkPassword()">Göster</button>
+      </div>
+      <div id="secret-message" style="display:none; margin-top: 10px;">
+        🎂 Doğum günün kutlu olsun! Seninle her şey daha güzel 💖
+      </div>
+    </div>
+
+    <!-- Ana Container -->
+    <div class="container" data-aos="fade-up" data-aos-delay="500">
+      <!-- Gizli Mesaj Card -->
+      <div class="card" data-aos="flip-left">
+        <h2>🔒 Gizli Mesaj</h2>
+        <input type="password" id="secretPassword" placeholder="Şifreyi gir..." />
+        <button onclick="checkPassword()">Göster</button>
+        <div id="errorMsg" class="error"></div>
+        <div class="secret-message" id="secretMessage">🎁 💜</div>
+      </div>
+
+      <!-- Sohbet Butonu -->
+      <a href="https://diesel8603.github.io/D.-/chat.html" class="chat-button" data-aos="fade-up" data-aos-delay="200">💬 Sohbete Git</a>
+
+      <!-- Mesaj Yaz Card -->
+      <div class="card" data-aos="fade-right">
+        <h2>📝 Mesajını Yaz</h2>
+        <form action="https://formspree.io/f/myzpjpno" method="POST">
+          <textarea name="soru" rows="4" placeholder="Bir şey sor veya paylaş..." required></textarea>
+          <button type="submit">Gönder</button>
+        </form>
+      </div>
+
+      <!-- Galeri Card -->
+      <div class="card" data-aos="fade-left">
+        <h2>📸 Galeriye Erişim</h2>
+        <input type="password" id="galleryPassword" placeholder="Galeri şifresini gir..." />
+        <button onclick="unlockGallery()">Girişi Aç</button>
+        <div id="galleryError" class="error"></div>
+        <div id="photoGallery" style="display: none; margin-top: 1rem;">
+          <input type="file" id="imageUpload" accept="image/*" style="margin-bottom: 1rem;" />
+          <div class="gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

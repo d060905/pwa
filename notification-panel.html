@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Bildirim Paneli</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: white; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: #2c2c2c; padding: 20px; border-radius: 10px; }
+        input, textarea, button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+        input, textarea { background: #3a3a3a; color: white; }
+        button { background: #d32f2f; color: white; cursor: pointer; }
+        button:hover { background: #ff3d3d; }
+        label { display: block; margin: 5px 0; }
+        h2, h3 { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📢 Bildirim Gönder</h2>
+        <input type="text" id="title" placeholder="Başlık" />
+        <textarea id="body" placeholder="Mesaj"></textarea>
+        <input type="text" id="icon" placeholder="İkon URL (opsiyonel)" />
+        <button onclick="sendNotification()">Anında Gönder</button>
+
+        <h3>⏰ Zamanlı Gönderim</h3>
+        <input type="datetime-local" id="scheduleTime" />
+        <label><input type="checkbox" id="daily" /> Her gün bu saatte gönder</label>
+        <button onclick="scheduleNotification()">Zamanla</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+    <script>
+        const backendUrl = 'https://pwa-backend-yu9q.onrender.com'; // Render backend linki
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMe8SfkLPZek2wqi6dU1YdPhNNziXHRPw",
+            authDomain: "pwa0510-c9241.firebaseapp.com",
+            projectId: "pwa0510-c9241",
+            storageBucket: "pwa0510-c9241.firebasestorage.app",
+            messagingSenderId: "93919479765",
+            appId: "1:93919479765:web:2f1a6a6808daad37cc9f5c",
+            measurementId: "G-BJJTQJEN6V"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        const vapidKey = "BPfUKwetqGWa2ONtvgLEylHk-u-DiRlHkwi7BfYTQNVAqtN_JP9K45qkj3nY_32YlwZBx2o7hl543d4zZu0_0qo";
+
+        let savedToken = '';
+
+        // Service Worker kaydı
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('firebase-messaging-sw.js')
+            .then(() => console.log('Service Worker kayıt edildi.'));
+        }
+
+        // Token al ve backend'e kaydet
+        function registerToken(token){
+            fetch(`${backendUrl}/register-token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            })
+            .then(res => res.json())
+            .then(data => console.log('Token kaydedildi:', data))
+            .catch(err => console.error(err));
+        }
+
+        // Bildirim izni butonu
+        const subscribeBtn = document.createElement('button');
+        subscribeBtn.textContent = "Bildirimleri Etkinleştir";
+        subscribeBtn.style.margin = "10px 0";
+        subscribeBtn.onclick = () => {
+            Notification.requestPermission().then((permission) => {
+                if(permission === 'granted'){
+                    messaging.getToken({ vapidKey }).then(token => {
+                        savedToken = token;
+                        registerToken(token);
+                        alert('Bildirim izni verildi!');
+                    });
+                } else alert('Bildirim izni reddedildi.');
+            });
+        };
+        document.querySelector('.container').prepend(subscribeBtn);
+
+        // Anlık gönderim
+        function sendNotification() {
+            const data = {
+                title: document.getElementById('title').value.trim(),
+                body: document.getElementById('body').value.trim(),
+                icon: document.getElementById('icon').value.trim()
+            };
+            if(!data.title || !data.body){ alert('Başlık ve mesaj gerekli!'); return; }
+
+            fetch(`${backendUrl}/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success){ alert('Bildirim gönderildi!'); clearForm(); }
+                else alert('Gönderilemedi: ' + (json.message || 'Hata'));
+            })
+            .catch(()=> alert('Backend’e bağlanılamadı'));
+        }
+
+        // Zamanlı gönderim
+        function scheduleNotification() {
+            const data = {
+                title: document.getElementById('title').value.trim(),
+                body: document.getElementById('body').value.trim(),
+                icon: document.getElementById('icon').value.trim(),
+                time: document.getElementById('scheduleTime').value,
+                daily: document.getElementById('daily').checked
+            };
+            if(!data.title || !data.body || !data.time){ alert('Başlık, mesaj ve tarih/saat gerekli!'); return; }
+
+            fetch(`${backendUrl}/schedule`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success){ alert('Bildirim zamanlandı!'); clearForm(); }
+                else alert('Zamanlama başarısız: ' + (json.message || 'Hata'));
+            })
+            .catch(()=> alert('Backend’e bağlanılamadı'));
+        }
+
+        function clearForm(){
+            document.getElementById('title').value='';
+            document.getElementById('body').value='';
+            document.getElementById('icon').value='';
+            document.getElementById('scheduleTime').value='';
+            document.getElementById('daily').checked=false;
+        }
+
+        // Site açıkken gelen bildirimleri dinle
+        messaging.onMessage(payload=>{
+            new Notification(payload.notification.title,{
+                body: payload.notification.body,
+                icon: payload.notification.icon
+            });
+        });
+    </script>
+</body>
+</html>

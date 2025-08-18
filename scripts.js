@@ -7,23 +7,23 @@ AOS.init({ duration: 1000, once: true });
 // Scroll Reveal Efekti
 // ========================
 document.addEventListener("DOMContentLoaded", () => {
-  const revealElements = document.querySelectorAll(".card, .countdown-card, .header h1, .glass-card, .chat-button");
+    const revealElements = document.querySelectorAll(".card, .countdown-card, .header h1, .glass-card, .chat-button");
 
-  const revealOnScroll = () => {
-    const windowHeight = window.innerHeight;
-    revealElements.forEach(el => {
-      const elementTop = el.getBoundingClientRect().top;
-      const revealPoint = 150;
-      if(elementTop < windowHeight - revealPoint){
-        el.classList.add("active-reveal");
-      } else {
-        el.classList.remove("active-reveal");
-      }
-    });
-  };
+    const revealOnScroll = () => {
+        const windowHeight = window.innerHeight;
+        revealElements.forEach(el => {
+            const elementTop = el.getBoundingClientRect().top;
+            const revealPoint = 150;
+            if (elementTop < windowHeight - revealPoint) {
+                el.classList.add("active-reveal");
+            } else {
+                el.classList.remove("active-reveal");
+            }
+        });
+    };
 
-  window.addEventListener("scroll", revealOnScroll);
-  revealOnScroll();
+    window.addEventListener("scroll", revealOnScroll);
+    revealOnScroll();
 });
 
 // ========================
@@ -66,7 +66,6 @@ function updateTimeBox(id, value) {
     if (lastTime[id] !== value) {
         el.innerText = value;
 
-        // Efekt: Pop ve glow animasyonu
         box.style.animation = "popGlow 0.3s ease";
         box.style.transform = "scale(1.2)";
         box.style.boxShadow = "0 0 20px rgba(255,77,109,0.7), 0 0 30px rgba(255,153,172,0.5)";
@@ -82,17 +81,13 @@ function updateTimeBox(id, value) {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-// ========================
 // Özel gün başlığı animasyonu
-// ========================
 const countdownTitle = document.querySelector(".countdown-title");
 if(countdownTitle){
     countdownTitle.style.animation = "glowPulse 2s ease-in-out infinite";
 }
 
-// ========================
 // Pop & Glow Animasyon Keyframes
-// ========================
 const style = document.createElement('style');
 style.innerHTML = `
 @keyframes popGlow {
@@ -258,9 +253,6 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log('Service Worker kayıt edildi.'));
 }
 
-// ========================
-// Render Backend Token Gönderimi
-// ========================
 const subscribeBtn = document.getElementById('subscribeBtn');
 if(subscribeBtn){
     subscribeBtn.addEventListener('click', () => {
@@ -283,7 +275,6 @@ if(subscribeBtn){
     });
 }
 
-// Firebase gelen mesajları göster
 messaging.onMessage((payload) => {
     console.log('Bildirim geldi: ', payload);
     new Notification(payload.notification.title, {
@@ -303,4 +294,5 @@ if ('serviceWorker' in navigator) {
     });
 } else {
     console.log('Service Worker desteklenmiyor.');
-}
+  }
+      
